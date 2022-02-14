@@ -19,18 +19,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include "../../inc/MarlinConfig.h"
+
 #include "../gcode.h"
 #include "../../module/stepper.h"
-#include "../../lcd/ultralcd.h"
-#if ENABLED(DWIN_CREALITY_LCD)
-  #include "../../lcd/dwin/dwin.h"
-#endif
+
 /**
  * M400: Finish all moves
  */
 void GcodeSuite::M400() {
 
   planner.synchronize();
-  TERN_(DWIN_CREALITY_LCD, DWIN_CompletedMatic());
+
 }

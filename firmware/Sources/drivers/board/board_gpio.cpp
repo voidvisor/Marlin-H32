@@ -2,7 +2,8 @@
 
 #include "startup.h"
 #include "fastio.h"
-
+#include "HardwareSerial.h"
+#include "../../Marlin/src/pins/stm32f1/pins_CREALITY_V4.h"
 
 
 extern const cfg_pin_info PIN_MAP[BOARD_NR_GPIO_PINS] = {
@@ -122,9 +123,9 @@ extern void setup_gpio(void )
     //PORT_InitMapp(LED, &stcPortInit);
 }
 
-DEFINE_HWSERIAL(Serial2, 2);
-DEFINE_HWSERIAL(Serial3, 3);
-DEFINE_HWSERIAL(Serial4, 4);
+// DEFINE_HWSERIAL(Serial2, 2);
+// DEFINE_HWSERIAL(Serial3, 3);
+// DEFINE_HWSERIAL(Serial4, 4);
 
 #undef _BOARD_GPIO_C_
 /************end of file********************/

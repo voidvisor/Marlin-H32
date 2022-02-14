@@ -27,6 +27,12 @@
  */
 
 #include "BL24CXX.h"
+// #ifdef __STM32F1__
+  // #include <libmaple/gpio.h>
+// #else
+  #include "../HAL/shared/Delay.h"
+  #define delay_us(n) DELAY_US(n)
+// #endif
 
 #ifndef EEPROM_WRITE_DELAY
   #define EEPROM_WRITE_DELAY    10
@@ -36,8 +42,13 @@
 #endif
 
 // IO direction setting
-#define SDA_IN()  SET_INPUT(IIC_EEPROM_SDA)
-#define SDA_OUT() SET_OUTPUT(IIC_EEPROM_SDA)
+// #ifdef __STM32F1__
+  // #define SDA_IN()  do{ PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH &= 0XFFFF0FFF; PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH |= 8 << 12; }while(0)
+  // #define SDA_OUT() do{ PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH &= 0XFFFF0FFF; PIN_MAP[IIC_EEPROM_SDA].gpio_device->regs->CRH |= 3 << 12; }while(0)
+// #elif STM32F1
+  #define SDA_IN()  SET_INPUT(IIC_EEPROM_SDA)
+  #define SDA_OUT() SET_OUTPUT(IIC_EEPROM_SDA)
+// #endif
 
 // IO ops
 #define IIC_SCL_0()   WRITE(IIC_EEPROM_SCL, LOW)
@@ -63,9 +74,9 @@ void IIC::start() {
   SDA_OUT();    // SDA line output
   IIC_SDA_1();
   IIC_SCL_1();
-  Ddl_Delay1us(4);
+  delay_us(4);
   IIC_SDA_0();  // START:when CLK is high, DATA change from high to low
-  Ddl_Delay1us(4);
+  delay_us(4);
   IIC_SCL_0();  // Clamp the I2C bus, ready to send or receive data
 }
 
@@ -74,10 +85,10 @@ void IIC::stop() {
   SDA_OUT();    // SDA line output
   IIC_SCL_0();
   IIC_SDA_0();  // STOP:when CLK is high DATA change from low to high
-  Ddl_Delay1us(4);
+  delay_us(4);
   IIC_SCL_1();
   IIC_SDA_1();  // Send I2C bus end signal
-  Ddl_Delay1us(4);
+  delay_us(4);
 }
 
 // Wait for the response signal to arrive
@@ -86,8 +97,8 @@ void IIC::stop() {
 uint8_t IIC::wait_ack() {
   uint8_t ucErrTime = 0;
   SDA_IN();      // SDA is set as input
-  IIC_SDA_1(); Ddl_Delay1us(1);
-  IIC_SCL_1(); Ddl_Delay1us(1);
+  IIC_SDA_1(); delay_us(1);
+  IIC_SCL_1(); delay_us(1);
   while (READ_SDA()) {
     if (++ucErrTime > 250) {
       stop();
@@ -103,9 +114,9 @@ void IIC::ack() {
   IIC_SCL_0();
   SDA_OUT();
   IIC_SDA_0();
-  Ddl_Delay1us(2);
+  delay_us(2);
   IIC_SCL_1();
-  Ddl_Delay1us(2);
+  delay_us(2);
   IIC_SCL_0();
 }
 
@@ -114,9 +125,9 @@ void IIC::nAck() {
   IIC_SCL_0();
   SDA_OUT();
   IIC_SDA_1();
-  Ddl_Delay1us(2);
+  delay_us(2);
   IIC_SCL_1();
-  Ddl_Delay1us(2);
+  delay_us(2);
   IIC_SCL_0();
 }
 
@@ -131,11 +142,11 @@ void IIC::send_byte(uint8_t txd) {
     // IIC_SDA = (txd & 0x80) >> 7;
     if (txd & 0x80) IIC_SDA_1(); else IIC_SDA_0();
     txd <<= 1;
-    Ddl_Delay1us(2);   // All three delays are necessary for TEA5767
+    delay_us(2);   // All three delays are necessary for TEA5767
     IIC_SCL_1();
-    Ddl_Delay1us(2);
+    delay_us(2);
     IIC_SCL_0();
-    Ddl_Delay1us(2);
+    delay_us(2);
   }
 }
 
@@ -145,11 +156,11 @@ uint8_t IIC::read_byte(unsigned char ack_chr) {
   SDA_IN(); // SDA is set as input
   LOOP_L_N(i, 8) {
     IIC_SCL_0();
-    Ddl_Delay1us(2);
+    delay_us(2);
     IIC_SCL_1();
     receive <<= 1;
     if (READ_SDA()) receive++;
-    Ddl_Delay1us(1);
+    delay_us(1);
   }
   ack_chr ? ack() : nAck(); // Send ACK / send nACK
   return receive;

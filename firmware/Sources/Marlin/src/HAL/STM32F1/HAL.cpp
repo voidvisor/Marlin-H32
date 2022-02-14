@@ -26,7 +26,6 @@
  */
 
 #ifdef __STM32F1__
-
 #include "../../inc/MarlinConfig.h"
 #include "HAL.h"
 
@@ -126,6 +125,7 @@ void HAL_adc_start_conversion(const uint8_t adc_pin) {
 	switch (adc_pin) {
 		case TEMP_0_PIN: pin_index = TEMP_0; break;
 		case TEMP_BED_PIN: pin_index = TEMP_BED; break;
+    default: pin_index = TEMP_0; break;
 	}
 	HAL_adc_result = adc_read(ADC1,(uint8_t)pin_index);
 }

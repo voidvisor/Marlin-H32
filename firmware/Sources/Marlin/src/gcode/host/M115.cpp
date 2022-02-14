@@ -22,17 +22,23 @@
 
 #include "../gcode.h"
 #include "../../inc/MarlinConfig.h"
+#include "../queue.h"           // for getting the command port
+
 
 #if ENABLED(M115_GEOMETRY_REPORT)
   #include "../../module/motion.h"
 #endif
 
+#if ENABLED(CASE_LIGHT_ENABLE)
+  #include "../../feature/caselight.h"
+#endif
+
 #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
   static void cap_line(PGM_P const name, bool ena=false) {
     SERIAL_ECHOPGM("Cap:");
-    serialprintPGM(name);
-    SERIAL_CHAR(':');
-    SERIAL_ECHOLN(int(ena ? 1 : 0));
+    SERIAL_ECHOPGM_P(name);
+    SERIAL_CHAR(':', '0' + ena);
+    SERIAL_EOL();
   }
 #endif
 
@@ -42,10 +48,24 @@
  *       the capability is not present.
  */
 void GcodeSuite::M115() {
-
-  SERIAL_ECHOLNPGM(STR_M115_REPORT);
+  SERIAL_ECHOLNPGM(
+    "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " (" __DATE__ " " __TIME__ ") "
+    "SOURCE_CODE_URL:" SOURCE_CODE_URL " "
+    "PROTOCOL_VERSION:" PROTOCOL_VERSION " "
+    "MACHINE_TYPE:" MACHINE_NAME " "
+    "EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " "
+    #if LINEAR_AXES != XYZ
+      "AXIS_COUNT:" STRINGIFY(LINEAR_AXES) " "
+    #endif
+    #ifdef MACHINE_UUID
+      "UUID:" MACHINE_UUID
+    #endif
+  );
 
   #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
+
+    // The port that sent M115
+    serial_index_t port = queue.ring_buffer.command_port();
 
     // PAREN_COMMENTS
     TERN_(PAREN_COMMENTS, cap_line(PSTR("PAREN_COMMENTS"), true));
@@ -57,13 +77,16 @@ void GcodeSuite::M115() {
     cap_line(PSTR("SERIAL_XON_XOFF"), ENABLED(SERIAL_XON_XOFF));
 
     // BINARY_FILE_TRANSFER (M28 B1)
-    cap_line(PSTR("BINARY_FILE_TRANSFER"), ENABLED(BINARY_FILE_TRANSFER));
+    cap_line(PSTR("BINARY_FILE_TRANSFER"), ENABLED(BINARY_FILE_TRANSFER)); // TODO: Use SERIAL_IMPL.has_feature(port, SerialFeature::BinaryFileTransfer) once implemented
 
     // EEPROM (M500, M501)
     cap_line(PSTR("EEPROM"), ENABLED(EEPROM_SETTINGS));
 
     // Volumetric Extrusion (M200)
     cap_line(PSTR("VOLUMETRIC"), DISABLED(NO_VOLUMETRICS));
+
+    // AUTOREPORT_POS (M154)
+    cap_line(PSTR("AUTOREPORT_POS"), ENABLED(AUTO_REPORT_POSITION));
 
     // AUTOREPORT_TEMP (M155)
     cap_line(PSTR("AUTOREPORT_TEMP"), ENABLED(AUTO_REPORT_TEMPERATURES));
@@ -93,11 +116,14 @@ void GcodeSuite::M115() {
     cap_line(PSTR("SOFTWARE_POWER"), ENABLED(PSU_CONTROL));
 
     // TOGGLE_LIGHTS (M355)
-    cap_line(PSTR("TOGGLE_LIGHTS"), ENABLED(HAS_CASE_LIGHT));
-    cap_line(PSTR("CASE_LIGHT_BRIGHTNESS"), TERN0(HAS_CASE_LIGHT, PWM_PIN(CASE_LIGHT_PIN)));
+    cap_line(PSTR("TOGGLE_LIGHTS"), ENABLED(CASE_LIGHT_ENABLE));
+    cap_line(PSTR("CASE_LIGHT_BRIGHTNESS"), TERN0(CASE_LIGHT_ENABLE, caselight.has_brightness()));
 
     // EMERGENCY_PARSER (M108, M112, M410, M876)
     cap_line(PSTR("EMERGENCY_PARSER"), ENABLED(EMERGENCY_PARSER));
+
+    // HOST ACTION COMMANDS (paused, resume, resumed, cancel, etc.)
+    cap_line(PSTR("HOST_ACTION_COMMANDS"), ENABLED(HOST_ACTION_COMMANDS));
 
     // PROMPT SUPPORT (M876)
     cap_line(PSTR("PROMPT_SUPPORT"), ENABLED(HOST_PROMPT_SUPPORT));
@@ -105,11 +131,20 @@ void GcodeSuite::M115() {
     // SDCARD (M20, M23, M24, etc.)
     cap_line(PSTR("SDCARD"), ENABLED(SDSUPPORT));
 
+    // REPEAT (M808)
+    cap_line(PSTR("REPEAT"), ENABLED(GCODE_REPEAT_MARKERS));
+
+    // SD_WRITE (M928, M28, M29)
+    cap_line(PSTR("SD_WRITE"), ENABLED(SDSUPPORT) && DISABLED(SDCARD_READONLY));
+
     // AUTOREPORT_SD_STATUS (M27 extension)
     cap_line(PSTR("AUTOREPORT_SD_STATUS"), ENABLED(AUTO_REPORT_SD_STATUS));
 
     // LONG_FILENAME_HOST_SUPPORT (M33)
     cap_line(PSTR("LONG_FILENAME"), ENABLED(LONG_FILENAME_HOST_SUPPORT));
+
+    // EXTENDED_M20 (M20 L)
+    cap_line(PSTR("EXTENDED_M20"), ENABLED(LONG_FILENAME_HOST_SUPPORT));
 
     // THERMAL_PROTECTION
     cap_line(PSTR("THERMAL_PROTECTION"), ENABLED(THERMALLY_SAFE));
@@ -125,6 +160,12 @@ void GcodeSuite::M115() {
 
     // CHAMBER_TEMPERATURE (M141, M191)
     cap_line(PSTR("CHAMBER_TEMPERATURE"), ENABLED(HAS_HEATED_CHAMBER));
+
+    // COOLER_TEMPERATURE (M143, M193)
+    cap_line(PSTR("COOLER_TEMPERATURE"), ENABLED(HAS_COOLER));
+
+    // MEATPACK Compression
+    cap_line(PSTR("MEATPACK"), SERIAL_IMPL.has_feature(port, SerialFeature::MeatPack));
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)

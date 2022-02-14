@@ -25,7 +25,7 @@
  * HAL for stm32duino.com based on Libmaple and compatible (STM32F1)
  */
 
-#include "../cores/iwdg.h"
+#include "iwdg.h"
 
 /**
  *  The watchdog clock is 40Khz. We need a 4 seconds interval, so use a /256 preescaler and

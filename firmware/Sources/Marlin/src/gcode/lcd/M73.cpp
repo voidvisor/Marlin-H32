@@ -25,7 +25,7 @@
 #if ENABLED(LCD_SET_PROGRESS_MANUALLY)
 
 #include "../gcode.h"
-#include "../../lcd/ultralcd.h"
+#include "../../lcd/marlinui.h"
 #include "../../sd/cardreader.h"
 
 /**
@@ -34,6 +34,7 @@
  * Example:
  *   M73 P25 ; Set progress to 25%
  */
+
 void GcodeSuite::M73() {
   if (parser.seen('P'))
     ui.set_progress((PROGRESS_SCALE) > 1
@@ -44,5 +45,6 @@ void GcodeSuite::M73() {
     if (parser.seen('R')) ui.set_remaining_time(60 * parser.value_ulong());
   #endif
 }
+
 
 #endif // LCD_SET_PROGRESS_MANUALLY

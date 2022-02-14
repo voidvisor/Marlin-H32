@@ -108,7 +108,7 @@ private:
     size_t printFloat(double, uint8); 
 };
 
-extern HardwareSerial Serial4;
-extern HardwareSerial Serial3;
-extern HardwareSerial Serial2;
+// extern HardwareSerial Serial4;
+// extern HardwareSerial Serial3;
+// extern HardwareSerial Serial2;
 #endif

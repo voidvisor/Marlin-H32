@@ -35,7 +35,7 @@
 #include "SPI.h"
 
 #include "../core/boards.h"
-#include "../cores/wirish.h"
+#include "wirish.h"
 
 /** Time in ms for DMA receive timeout */
 #define DMA_TIMEOUT 100

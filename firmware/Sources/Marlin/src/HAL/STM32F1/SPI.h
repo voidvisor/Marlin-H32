@@ -25,10 +25,10 @@
  *****************************************************************************/
 #pragma once
 #ifdef USE_SPI
-#include "../cores/libmaple_types.h"
-#include "../cores/spi.h"
+#include "libmaple_types.h"
+#include "spi.h"
 
-#include "../cores/boards.h"
+#include "boards.h"
 #include <stdint.h>
 #include <wirish.h>
 

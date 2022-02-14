@@ -1,6 +1,10 @@
 #ifndef _BSP_H
 #define  _BSP_H
 
+// #include "/Users/alejandroquezada/Developer/Marlin/Marlin/src/core/macros.h"
+// // #include "/Users/alejandroquezada/Developer/Marlin/Marlin/src/core/drivers.h"
+// #include "../../../../../../Configuration.h"
+
 #include "string.h"
 //#include <iostream>
 #include <stdint.h>
@@ -13,28 +17,29 @@
 #include <inttypes.h>
 
 #include "hc32_ddl.h"
-#include "../core/macros.h"
-#include "../core/boards.h"
+
+#include "../../../../../core/macros.h"
+// #include "../../../../../core/boards.h"
 
 #include "board_tim0.h"
 #include "board_cfg.h" 
 #include "board_gpio.h" 
 #include "i2c.h"
 #include "adc.h"
-#include "../pins/pins.h"
+// #include "../../../../../pins/pins.h"
 #include "sdio_f1.h"
-#include "../cores/usart.h"
-#include "../cores/HardwareSerial.h"
+#include "usart.h"
+// #include "HardwareSerial.h"
 
-#include "../cores/libmaple_types.h"
-#include "../cores/wirish_types.h"
+#include "libmaple_types.h"
+#include "wirish_types.h"
 
 #ifdef __cplusplus
 extern "C"{
 #endif
 
 extern uint32_t F_CPU;
-#define CYCLES_PER_MICROSECOND  (F_CPU / 1000000UL)
+// #define CYCLES_PER_MICROSECOND  (F_CPU / 1000000UL)
 
 typedef enum ExtIntTriggerMode {
     RISING, /**< To trigger an interrupt when the pin transitions LOW

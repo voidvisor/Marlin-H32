@@ -42,15 +42,26 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
+#include "../../inc/MarlinConfig.h"
+#include "MarlinSerial.h"
+
 // ------------------------
 // Defines
 // ------------------------
 
  #define STM32_FLASH_SIZE 256
 
+#define _MSERIAL(X) MSerial##X
+#define MSERIAL(X) _MSERIAL(X)
+
  
-#define MYSERIAL0 Serial2
-#define MYSERIAL1 Serial4
+// #define MYSERIAL0 Serial2
+// #define MYSERIAL1 Serial4
+
+// #define MYSERIAL0 MSERIAL(2)
+
+#define MYSERIAL1 MSERIAL(2)
+#define LCD_SERIAL MSERIAL(4)
 
 #if !WITHIN(SERIAL_PORT, -1, 5)
   #error "SERIAL_PORT must be from -1 to 5"
@@ -61,7 +72,7 @@
   #elif SERIAL_PORT_2 == SERIAL_PORT
     #error "SERIAL_PORT_2 must be different than SERIAL_PORT"
   #endif
-  #define NUM_SERIAL 2
+  // #define NUM_SERIAL 2
 
 // Set interrupt grouping for this MCU
 void HAL_init();

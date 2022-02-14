@@ -30,7 +30,7 @@
 
 #if ENABLED(USE_WATCHDOG)
 
-#include "../cores/iwdg.h"
+#include "iwdg.h"
 #include "watchdog.h"
 
 void HAL_watchdog_refresh() {

@@ -7,12 +7,12 @@
  * for free and use it as they wish, with or without modifications, and in
  * any context, commercially or otherwise. The only limitation is that I
  * don't guarantee that the software is fit for any purpose or accept any
- * liability for it's use or misuse - this software is without warranty.
+ * liability for its use or misuse - this software is without warranty.
  ***************************************************************************
  * File Description: Implementation of the interface into the ARM unwinder.
  **************************************************************************/
 
-#if !(defined(__arm__) || defined(__thumb__))
+#if defined(__arm__) || defined(__thumb__)
 
 #define MODULE_NAME "UNWINDER"
 
