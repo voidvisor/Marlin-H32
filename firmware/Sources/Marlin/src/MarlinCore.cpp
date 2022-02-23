@@ -1330,7 +1330,7 @@ void setup() {
     SETUP_RUN(card.mount());          // Mount media with settings before first_load
   #endif
 
-  // SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
+  SETUP_RUN(settings.first_load());   // Load data from EEPROM if available (or use defaults)
                                       // This also updates variables in the planner, elsewhere
 
   #if HAS_ETHERNET
