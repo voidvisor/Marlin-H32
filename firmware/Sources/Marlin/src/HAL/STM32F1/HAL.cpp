@@ -63,6 +63,13 @@ enum TEMP_PINS {
 
 void HAL_init() {
   NVIC_SetPriorityGrouping(0x3);
+  stc_wdt_init_t new_WDT_config;
+  new_WDT_config.enCountCycle = WdtCountCycle65536;///< Count cycle
+  new_WDT_config.enClkDiv = WdtPclk3Div8192;               ///< Count clock division
+  new_WDT_config.enRefreshRange = WdtRefresh100Pct;         ///< Allow refresh percent range
+  new_WDT_config.enSleepModeCountEn = Disable;     ///< Enable/disable count in the sleep mode
+  new_WDT_config.enRequsetType = WdtTriggerResetRequest;    ///< Refresh error or count underflow trigger event type
+  WDT_Init(&new_WDT_config);
 }
 
 // HAL idle task
