@@ -93,7 +93,6 @@ bool DWIN_Handshake(void) {
   #ifndef LCD_BAUDRATE
     #define LCD_BAUDRATE 115200
   #endif
-  LCD_SERIAL.init(USART4,BOARD_USART4_TX_PIN,BOARD_USART4_RX_PIN);
   LCD_SERIAL.begin(LCD_BAUDRATE);
   const millis_t serial_connect_timeout = millis() + 1000UL;
   while (!LCD_SERIAL && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }

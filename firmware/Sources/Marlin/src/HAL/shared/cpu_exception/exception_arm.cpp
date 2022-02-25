@@ -27,7 +27,6 @@
 
 #if defined(__arm__) || defined(__thumb__)
 
-
 /*
   On ARM CPUs exception handling is quite powerful.
 
@@ -163,6 +162,9 @@ struct __attribute__((packed)) ContextSavedFrame {
       __asm("bkpt 1");                  \
     }                                   \
 } while (0)
+
+#define min(a,b)                ((a)<(b)?(a):(b))
+#define max(a,b)                ((a)>(b)?(a):(b))
 
 // Resume from a fault (if possible) so we can still use interrupt based code for serial output
 // In that case, we will not jump back to the faulty code, but instead to a dumping code and then a

@@ -152,8 +152,8 @@ typedef enum en_pwc_waketime_sel
  ******************************************************************************/
 typedef enum en_pwc_stop_flash_sel
 {
-    Wait                            = 0u,  ///< wait flash stable.
-    NotWait                         = 1u,  ///< Not Wait flash stable.
+    WaitFlash                            = 0u,  ///< wait flash stable.
+    NotWaitFlash                         = 1u,  ///< Not Wait flash stable.
 }en_pwc_stop_flash_sel_t;
 
 /**

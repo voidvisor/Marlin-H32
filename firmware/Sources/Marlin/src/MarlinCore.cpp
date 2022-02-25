@@ -794,43 +794,60 @@ void idle(bool no_stepper_sleep/*=false*/) {
     static uint16_t idle_depth = 0;
     if (++idle_depth > 5) SERIAL_ECHOLNPAIR("idle() call depth: ", idle_depth);
   #endif
-    // Core Marlin activities
+
+  // Core Marlin activities
   manage_inactivity(no_stepper_sleep);
+
   // Manage Heaters (and Watchdog)
   thermalManager.manage_heater();
+
   // Max7219 heartbeat, animation, etc
   TERN_(MAX7219_DEBUG, max7219.idle_tasks());
+
   // Return if setup() isn't completed
   if (marlin_state == MF_INITIALIZING) goto IDLE_DONE;
+
   // TODO: Still causing errors
   (void)check_tool_sensor_stats(active_extruder, true);
+
   // Handle filament runout sensors
   TERN_(HAS_FILAMENT_SENSOR, runout.run());
+
   // Run HAL idle tasks
   TERN_(HAL_IDLETASK, HAL_idletask());
+
   // Check network connection
   TERN_(HAS_ETHERNET, ethernet.check());
+
   // Handle Power-Loss Recovery
   #if ENABLED(POWER_LOSS_RECOVERY) && PIN_EXISTS(POWER_LOSS)
     if (IS_SD_PRINTING()) recovery.outage();
   #endif
+
   // Run StallGuard endstop checks
   #if ENABLED(SPI_ENDSTOPS)
     if (endstops.tmc_spi_homing.any && TERN1(IMPROVE_HOMING_RELIABILITY, ELAPSED(millis(), sg_guard_period)))
       LOOP_L_N(i, 4) if (endstops.tmc_spi_homing_check()) break; // Read SGT 4 times per idle loop
   #endif
+
   // Handle SD Card insert / remove
   TERN_(SDSUPPORT, card.manage_media());
+
   // Handle USB Flash Drive insert / remove
   TERN_(USB_FLASH_DRIVE_SUPPORT, card.diskIODriver()->idle());
+
   // Announce Host Keepalive state (if any)
   TERN_(HOST_KEEPALIVE_FEATURE, gcode.host_keepalive());
+
   // Update the Print Job Timer state
   TERN_(PRINTCOUNTER, print_job_timer.tick());
+
   // Update the Beeper queue
   TERN_(USE_BEEPER, buzzer.tick());
+
   // Handle UI input / draw events
   ui.update();
+
   // Run i2c Position Encoders
   #if ENABLED(I2C_POSITION_ENCODERS)
   {
@@ -844,6 +861,7 @@ void idle(bool no_stepper_sleep/*=false*/) {
     }
   }
   #endif
+
   // Auto-report Temperatures / SD Status
   #if HAS_AUTO_REPORTING
     if (!gcode.autoreport_paused) {
@@ -853,17 +871,22 @@ void idle(bool no_stepper_sleep/*=false*/) {
       TERN_(BUFFER_MONITORING, queue.auto_report_buffer_statistics());
     }
   #endif
+
   // Update the Průša MMU2
   TERN_(HAS_PRUSA_MMU2, mmu2.mmu_loop());
+
   // Handle Joystick jogging
   TERN_(POLL_JOG, joystick.inject_jog_moves());
+
   // Direct Stepping
   TERN_(DIRECT_STEPPING, page_manager.write_responses());
+
   // Update the LVGL interface
   TERN_(HAS_TFT_LVGL_UI, LV_TASK_HANDLER());
+
   IDLE_DONE:
   TERN_(MARLIN_DEV_MODE, idle_depth--);
-    return;
+  return;
 }
 
 /**
@@ -1107,9 +1130,6 @@ inline void tmc_standby_setup() {
  *  - Open Touch Screen Calibration screen, if not calibrated
  *  - Set Marlin to RUNNING State
  */
-
-
-
 void setup() {
   #ifdef BOARD_PREINIT
     BOARD_PREINIT(); // Low-level init (before serial init)
@@ -1128,14 +1148,11 @@ void setup() {
     #define SETUP_LOG(...) NOOP
   #endif
   #define SETUP_RUN(C) do{ SETUP_LOG(STRINGIFY(C)); C; }while(0)
-  
-  MYSERIAL1.init(USART2,BOARD_USART2_TX_PIN,BOARD_USART2_RX_PIN);
+
   MYSERIAL1.begin(BAUDRATE);
-  uint32_t serial_connect_timeout = millis() + 1000UL;
+  millis_t serial_connect_timeout = millis() + 1000UL;
   while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
 
-
-  
   #if HAS_MULTI_SERIAL && !HAS_ETHERNET
     #ifndef BAUDRATE_2
       #define BAUDRATE_2 BAUDRATE
@@ -1154,7 +1171,6 @@ void setup() {
   #endif
   SERIAL_ECHOLNPGM("start");
 
-  
   // Set up these pins early to prevent suicide
   #if HAS_KILL
     SETUP_LOG("KILL_PIN");
@@ -1180,7 +1196,6 @@ void setup() {
     JTAGSWD_RESET();
   #endif
 
-  
   #if EITHER(DISABLE_DEBUG, DISABLE_JTAG)
     delay(10);
     // Disable any hardware debug to free up pins for IO
@@ -1195,14 +1210,10 @@ void setup() {
     #endif
   #endif
 
-  
   TERN_(DYNAMIC_VECTORTABLE, hook_cpu_exceptions()); // If supported, install Marlin exception handlers at runtime
-
 
   SETUP_RUN(HAL_init());
 
-
-  
   // Init and disable SPI thermocouples; this is still needed
   #if TEMP_SENSOR_0_IS_MAX_TC || (TEMP_SENSOR_REDUNDANT_IS_MAX_TC && REDUNDANT_TEMP_MATCH(SOURCE, E0))
     OUT_WRITE(TEMP_0_CS_PIN, HIGH);  // Disable
@@ -1215,7 +1226,6 @@ void setup() {
     OUT_WRITE(SMART_EFFECTOR_MOD_PIN, LOW);   // Put Smart Effector into NORMAL mode
   #endif
 
-  
   #if HAS_FILAMENT_SENSOR
     SETUP_RUN(runout.setup());
   #endif
@@ -1229,12 +1239,10 @@ void setup() {
     powerManager.init();
   #endif
 
-
   #if ENABLED(POWER_LOSS_RECOVERY)
     SETUP_RUN(recovery.setup());
   #endif
 
-  
   #if HAS_L64XX
     SETUP_RUN(L64xxManager.init());  // Set up SPI, init drivers
   #endif
@@ -1266,7 +1274,6 @@ void setup() {
   if (mcu & RST_SOFTWARE) SERIAL_ECHOLNPGM(STR_SOFTWARE_RESET);
   HAL_clear_reset_source();
 
-  
   SERIAL_ECHOLNPGM("Marlin " SHORT_BUILD_VERSION);
   SERIAL_EOL();
   #if defined(STRING_DISTRIBUTION_DATE) && defined(STRING_CONFIG_H_AUTHOR)
@@ -1278,9 +1285,8 @@ void setup() {
   SERIAL_ECHO_MSG("Compiled: " __DATE__);
   SERIAL_ECHO_MSG(STR_FREE_MEMORY, freeMemory(), STR_PLANNER_BUFFER_BYTES, sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
-  
   // Some HAL need precise delay adjustment
-  // calibrate_delay_loop();
+  calibrate_delay_loop();
 
   // Init buzzer pin(s)
   #if USE_BEEPER
@@ -1300,18 +1306,16 @@ void setup() {
     SETUP_RUN(controllerFan.setup());
   #endif
 
-  
   // UI must be initialized before EEPROM
   // (because EEPROM code calls the UI).
 
   SETUP_RUN(ui.init());
-    #if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
+  #if BOTH(HAS_WIRED_LCD, SHOW_BOOTSCREEN)
     SETUP_RUN(ui.show_bootscreen());
     const millis_t bootscreen_ms = millis();
   #endif
   SETUP_RUN(ui.reset_status());     // Load welcome message early. (Retained if no errors exist.)
 
-  
   #if PIN_EXISTS(SAFE_POWER)
     #if HAS_DRIVER_SAFE_POWER_PROTECT
       SETUP_RUN(stepper_driver_backward_check());
@@ -1321,7 +1325,6 @@ void setup() {
     #endif
   #endif
 
-  
   #if ENABLED(PROBE_TARE)
     SETUP_RUN(probe.tare_init());
   #endif
@@ -1342,11 +1345,15 @@ void setup() {
   #endif
 
   TERN_(HAS_M206_COMMAND, current_position += home_offset); // Init current position based on home_offset
+
   sync_plan_position();               // Vital to init stepper/planner equivalent for current_position
 
   SETUP_RUN(thermalManager.init());   // Initialize temperature loop
+
   SETUP_RUN(print_job_timer.init());  // Initial setup of print job timer
+
   SETUP_RUN(endstops.init());         // Init endstops and pullups
+
   SETUP_RUN(stepper.init());          // Init stepper. This enables interrupts!
 
   #if HAS_SERVOS
@@ -1537,6 +1544,7 @@ void setup() {
   #elif ENABLED(ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
     SETUP_RUN(est_init());
   #endif
+
   #if ENABLED(USE_WATCHDOG)
     SETUP_RUN(watchdog_init());       // Reinit watchdog after HAL_get_reset_source call
   #endif
@@ -1565,11 +1573,13 @@ void setup() {
   #if HAS_PRUSA_MMU2
     SETUP_RUN(mmu2.init());
   #endif
+
   #if ENABLED(IIC_BL24CXX_EEPROM)
     BL24CXX::init();
     const uint8_t err = BL24CXX::check();
     SERIAL_ECHO_TERNARY(err, "BL24CXX Check ", "failed", "succeeded", "!\n");
   #endif
+
   #if HAS_SERVICE_INTERVALS
     ui.reset_status(true);  // Show service messages or keep current status
   #endif
@@ -1606,8 +1616,9 @@ void setup() {
   #endif
 
   marlin_state = MF_RUNNING;
+
   SETUP_LOG("setup() completed.");
-  }
+}
 
 /**
  * The main Marlin program loop
@@ -1624,7 +1635,7 @@ void setup() {
  */
 void loop() {
   do {
-        idle();
+    idle();
 
     #if ENABLED(SDSUPPORT)
       if (card.flag.abort_sd_printing) abortSDPrinting();

@@ -32,7 +32,7 @@
 #include "../../inc/MarlinConfigPre.h"
 
 enum processID : uint8_t {
-  Main, Print, Menu, Value, Option, File, Popup, Confirm, Waiting
+  Main, Print, Menu, Value, Option, File, Popup, Confirm, Wait
 };
 
 enum PopupID : uint8_t {

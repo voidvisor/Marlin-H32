@@ -620,7 +620,7 @@ void CrealityDWINClass::Draw_Main_Menu(uint8_t select/*=0*/) {
   Clear_Screen();
   Draw_Title(Get_Menu_Title(MainMenu));
   DWIN_ICON_Show(ICON, ICON_LOGO, 71, 67);
-  SERIAL_ECHOPGM("\nDWIN handshake Draw_Main_Menu ");
+  SERIAL_ECHOPGM("\nDWIN handshake ");
   Main_Menu_Icons();
 }
 
@@ -951,8 +951,8 @@ void CrealityDWINClass::Draw_Status_Area(bool icons/*=false*/) {
 }
 
 void CrealityDWINClass::Draw_Popup(const char *line1, const char *line2,const char *line3, uint8_t mode, uint8_t icon/*=0*/) {
-  if (process != Confirm && process != Popup && process != Waiting) last_process = process;
-  if ((process == Menu || process == Waiting || process == File) && mode == Popup) last_selection = selection;
+  if (process != Confirm && process != Popup && process != Wait) last_process = process;
+  if ((process == Menu || process == Wait || process == File) && mode == Popup) last_selection = selection;
   process = mode;
   Clear_Screen();
   DWIN_Draw_Rectangle(0, Color_White, 13, 59, 259, 351);
@@ -4563,34 +4563,34 @@ void CrealityDWINClass::Popup_Handler(PopupID popupid, bool option/*=false*/) {
       Draw_Popup("Manual Probing", "(Confirm to probe)", "(cancel to exit)", Popup);
       break;
     case Level:
-      Draw_Popup("Auto Bed Leveling", "Please wait until done.", "", Waiting, ICON_AutoLeveling);
+      Draw_Popup("Auto Bed Leveling", "Please wait until done.", "", Wait, ICON_AutoLeveling);
       break;
     case Home:
-      Draw_Popup(option ? "Parking" : "Homing", "Please wait until done.", "", Waiting, ICON_BLTouch);
+      Draw_Popup(option ? "Parking" : "Homing", "Please wait until done.", "", Wait, ICON_BLTouch);
       break;
     case MoveWait:
-      Draw_Popup("Moving to Point", "Please wait until done.", "", Waiting, ICON_BLTouch);
+      Draw_Popup("Moving to Point", "Please wait until done.", "", Wait, ICON_BLTouch);
       break;
     case Heating:
-      Draw_Popup("Heating", "Please wait until done.", "", Waiting, ICON_BLTouch);
+      Draw_Popup("Heating", "Please wait until done.", "", Wait, ICON_BLTouch);
       break;
     case FilLoad:
-      Draw_Popup(option ? "Unloading Filament" : "Loading Filament", "Please wait until done.", "", Waiting, ICON_BLTouch);
+      Draw_Popup(option ? "Unloading Filament" : "Loading Filament", "Please wait until done.", "", Wait, ICON_BLTouch);
       break;
     case FilChange:
-      Draw_Popup("Filament Change", "Please wait for prompt.", "", Waiting, ICON_BLTouch);
+      Draw_Popup("Filament Change", "Please wait for prompt.", "", Wait, ICON_BLTouch);
       break;
     case TempWarn:
-      Draw_Popup(option ? "Nozzle temp too low!" : "Nozzle temp too high!", "", "", Waiting, option ? ICON_TempTooLow : ICON_TempTooHigh);
+      Draw_Popup(option ? "Nozzle temp too low!" : "Nozzle temp too high!", "", "", Wait, option ? ICON_TempTooLow : ICON_TempTooHigh);
       break;
     case Runout:
-      Draw_Popup("Filament Runout", "", "", Waiting, ICON_BLTouch);
+      Draw_Popup("Filament Runout", "", "", Wait, ICON_BLTouch);
       break;
     case PIDWait:
-      Draw_Popup("PID Autotune", "in process", "Please wait until done.", Waiting, ICON_BLTouch);
+      Draw_Popup("PID Autotune", "in process", "Please wait until done.", Wait, ICON_BLTouch);
       break;
     case Resuming:
-      Draw_Popup("Resuming Print", "Please wait until done.", "", Waiting, ICON_BLTouch);
+      Draw_Popup("Resuming Print", "Please wait until done.", "", Wait, ICON_BLTouch);
       break;
     case ConfirmStartPrint:
       Draw_Popup(option ? "Loading Preview..." : "Print file?", "", "", Popup);
@@ -5349,13 +5349,11 @@ void CrealityDWINClass::Start_Print(bool sd) {
     printing = true;
     statusmsg[0] = '\0';
     if (sd) {
-      #if ENABLED(POWER_LOSS_RECOVERY)
       if (recovery.valid()) {
         SdFile *diveDir = nullptr;
         const char * const fname = card.diveToFile(true, diveDir, recovery.info.sd_filename);
         card.selectFileByName(fname);
       }
-      #endif
       strcpy_P(filename, card.longest_filename());
     }
     else
@@ -5410,17 +5408,13 @@ void CrealityDWINClass::Update() {
 
 void CrealityDWINClass::State_Update() {
   if ((print_job_timer.isRunning() || print_job_timer.isPaused()) != printing) {
-    #if ENABLED(POWER_LOSS_RECOVERY)
     if (!printing) Start_Print((card.isFileOpen() || recovery.valid()));
-    #else
-    if (!printing) Start_Print(card.isFileOpen());
-    #endif
     else Stop_Print();
   }
   if (print_job_timer.isPaused() != paused) {
     paused = print_job_timer.isPaused();
     if (process == Print) Print_Screen_Icons();
-    if (process == Waiting && !paused) Redraw_Menu(true, true);
+    if (process == Wait && !paused) Redraw_Menu(true, true);
   }
   if (wait_for_user && !(process == Confirm) && !print_job_timer.isPaused()) {
     Confirm_Handler(UserInput);
