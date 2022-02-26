@@ -48,16 +48,7 @@ struct MarlinSerial : public HardwareSerial {
   #endif
 };
 
-// struct WrappedSerial : public PonchoSerial {
-//   WrappedSerial(uint8 n = 2) : PonchoSerial(n) { }
-// };
-
 typedef Serial1Class<MarlinSerial> MSerialT;
-// typedef Serial1Class<WrappedSerial> PSerialT;
-
-/* extern PSerialT poncho2;
-extern PSerialT poncho4; */
-
 
 extern MSerialT MSerial2;
 extern MSerialT MSerial4;
