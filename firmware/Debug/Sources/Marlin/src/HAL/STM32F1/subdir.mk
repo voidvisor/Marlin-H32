@@ -4,6 +4,7 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
+../Sources/Marlin/src/HAL/STM32F1/ExtInt_Z_MIN_PROBE.cpp \
 ../Sources/Marlin/src/HAL/STM32F1/HAL.cpp \
 ../Sources/Marlin/src/HAL/STM32F1/HAL_SPI.cpp \
 ../Sources/Marlin/src/HAL/STM32F1/MarlinSerial.cpp \
@@ -22,6 +23,7 @@ CPP_SRCS += \
 ../Sources/Marlin/src/HAL/STM32F1/watchdog.cpp 
 
 OBJS += \
+./Sources/Marlin/src/HAL/STM32F1/ExtInt_Z_MIN_PROBE.o \
 ./Sources/Marlin/src/HAL/STM32F1/HAL.o \
 ./Sources/Marlin/src/HAL/STM32F1/HAL_SPI.o \
 ./Sources/Marlin/src/HAL/STM32F1/MarlinSerial.o \
@@ -40,6 +42,7 @@ OBJS += \
 ./Sources/Marlin/src/HAL/STM32F1/watchdog.o 
 
 CPP_DEPS += \
+./Sources/Marlin/src/HAL/STM32F1/ExtInt_Z_MIN_PROBE.d \
 ./Sources/Marlin/src/HAL/STM32F1/HAL.d \
 ./Sources/Marlin/src/HAL/STM32F1/HAL_SPI.d \
 ./Sources/Marlin/src/HAL/STM32F1/MarlinSerial.d \

@@ -45,6 +45,7 @@
 #define SET_OUTPUT(IO)          OUT_WRITE(IO, LOW)
 
 #define PWM_PIN(IO)             0//(PIN_MAP[IO].timer_device != nullptr)
+#warning "PWM_PIN(IO) is not implemented"
 
 // digitalRead/Write wrappers
 #define extDigitalRead(IO)      digitalRead(IO)
