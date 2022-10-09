@@ -26,6 +26,11 @@ jobs:
         make all
       env:
         AQUILA_VER: ${{ matrix.chip }}
+    - name: Upload firmware artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: firmware
+        path: firmware/Debug/firmware.bin
   Build-BLTouch:
     name: Build BL-Touch Files
     runs-on: ubuntu-latest
