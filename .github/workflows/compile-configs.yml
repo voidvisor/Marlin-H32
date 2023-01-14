@@ -58,20 +58,11 @@ jobs:
         AQUILA_VER: ${{ matrix.chip }}
         GRID: ${{ matrix.grid }}
         HS: ${{ matrix.highspeed }}
-    - name: Get release
-      id: get_release
-      uses: bruceadams/get-release@v1.2.2
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload firmware artifact
+      uses: actions/upload-artifact@v3
       with:
-        upload_url: ${{ steps.get_release.outputs.upload_url }}
-        asset_path: firmware/Debug/firmware.bin
-        asset_name: ${{ steps.build_configs.outputs.filename }}
-        asset_content_type: application/x-binary
+        name: ${{ steps.build_configs.outputs.filename }}
+        path: firmware/Debug/firmware.bin
   Build-Manual-Mesh:
     name: Build Manual-Mesh Files
     runs-on: ubuntu-latest
@@ -94,20 +85,11 @@ jobs:
       env:
         AQUILA_VER: ${{ matrix.chip }}
         GRID: ${{ matrix.grid }}
-    - name: Get release
-      id: get_release
-      uses: bruceadams/get-release@v1.2.2
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload firmware artifact
+      uses: actions/upload-artifact@v3
       with:
-        upload_url: ${{ steps.get_release.outputs.upload_url }}
-        asset_path: firmware/Debug/firmware.bin
-        asset_name: ${{ steps.build_configs.outputs.filename }}
-        asset_content_type: application/x-binary
+        name: ${{ steps.build_configs.outputs.filename }}
+        path: firmware/Debug/firmware.bin
   # Build-UBL-BLTouch:
   #   name: Build BL-Touch UBL Files
   #   runs-on: ubuntu-latest
@@ -171,17 +153,8 @@ jobs:
       env:
         AQUILA_VER: ${{ matrix.chip }}
         GRID: ${{ matrix.grid }}
-    - name: Get release
-      id: get_release
-      uses: bruceadams/get-release@v1.2.2
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload firmware artifact
+      uses: actions/upload-artifact@v3
       with:
-        upload_url: ${{ steps.get_release.outputs.upload_url }}
-        asset_path: firmware/Debug/firmware.bin
-        asset_name: ${{ steps.build_configs.outputs.filename }}
-        asset_content_type: application/x-binary
+        name: ${{ steps.build_configs.outputs.filename }}
+        path: firmware/Debug/firmware.bin
